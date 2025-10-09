@@ -1,54 +1,174 @@
-Net Zero Cloud - Enhanced Bill Processing
-This repository contains the metadata to enhance the functionality of Salesforce Net Zero Cloud by allowing users to import utility bills (PDFs or images) and automatically create Energy Use Records.
+# 📋 NZC LLM Bill Ingestor
 
-📖 Description
-This feature streamlines the process of entering energy consumption data into Net Zero Cloud. It provides a Lightning Web Component (LWC) that allows users to upload a bill for a specific Stationary Asset. The system then leverages an Einstein LLM template to parse the document, extract relevant electricity and gas utilization data, and present it to the user for verification before creating the final Energy Use Record.
+> **A powerful AI-powered solution for automated bill processing and energy consumption tracking in Salesforce Net Zero Cloud**
 
-✨ Features
-File Upload: A user-friendly LWC to upload PDF or image files of utility bills directly to a Stationary Asset record.
+[![Salesforce](https://img.shields.io/badge/Salesforce-00A1E0?style=for-the-badge&logo=salesforce&logoColor=white)](https://salesforce.com)
+[![Net Zero Cloud](https://img.shields.io/badge/Net_Zero_Cloud-FFB000?style=for-the-badge&logo=salesforce&logoColor=white)](https://help.salesforce.com/s/articleView?id=sf.net_zero_cloud_intro.htm)
+[![Lightning](https://img.shields.io/badge/Lightning-1798C1?style=for-the-badge&logo=salesforce&logoColor=white)](https://developer.salesforce.com/docs/platform/lwc/guide)
 
-AI-Powered Data Extraction: Utilizes an Einstein template to send instructions to an LLM for intelligent parsing of energy and gas consumption data from the uploaded file.
+---
 
-Data Rendering: The extracted data is returned as a JSON payload and cleanly rendered within the LWC for user review.
+## ✨ Features
 
-Automated Record Creation: With a single button click, users can invoke a Salesforce Flow to create an Energy Use Record from the extracted data.
+### 🤖 **AI-Powered Analysis**
+- **Smart Bill Processing**: Leverages Einstein AI to automatically extract key information from utility bills
+- **Multi-Format Support**: Processes various file formats including images and PDFs
+- **Intelligent Data Extraction**: Automatically identifies account names, consumption data, and billing periods
 
-Clipboard Functionality: Allows the user to easily copy the extracted data to the clipboard for use elsewhere.
+### 🏗️ **Salesforce Integration**
+- **Net Zero Cloud Compatible**: Seamlessly integrates with Salesforce Net Zero Cloud for sustainability tracking
+- **Lightning Web Components**: Modern, responsive UI built with Lightning Web Components
+- **Flow Integration**: Includes pre-built flows for automated record processing
+- **Energy Use Record Creation**: Automatically creates `StnryAssetEnrgyUse` records from analyzed data
 
-⚙️ How It Works
-The process follows these steps:
+### 📊 **Energy Management**
+- **Consumption Tracking**: Monitors electricity usage across multiple sites
+- **Historical Data**: Maintains comprehensive records of energy consumption patterns
+- **Multi-Site Support**: Handles bills containing data for multiple locations
 
-Upload: An end-user navigates to a Stationary Asset record and uses the custom LWC to upload an image file or a PDF of a utility bill. The file is then added to the record's file-related list.
+---
 
-AI Parsing: The system uses an Einstein template to send instructions to an LLM. The LLM is instructed to parse the document and extract key information regarding electricity and gas utilization.
+## 🚀 Getting Started
 
-JSON Payload: The LLM returns the extracted information structured as a JSON payload.
+### 📋 Prerequisites
 
-Review and Action: The JSON is rendered in the LWC, allowing the user to review the extracted data for accuracy.
+Before you begin, ensure you have the following:
 
-Create or Copy: The user can then choose one of two actions:
+- ✅ **Salesforce Net Zero Cloud** licensed and configured
+- ✅ **Git** installed on your local machine
+- ✅ **Salesforce CLI** (latest version recommended)
+- ✅ **Salesforce user** with deployment permissions
+- ✅ **Active Salesforce org** (Sandbox or Developer Edition)
+- ✅ **Einstein AI** features enabled in your org
 
-Click a button to invoke a Flow, which creates an Energy Use Record with the parsed information.
+### 🔧 Installation
 
-Click a button to copy the results to their clipboard.
+#### 1️⃣ Clone the Repository
 
-🚀 Usage
-To use this feature, navigate to the Stationary Asset record where you wish to add an Energy Use Record. You will find the custom LWC on the page. Simply drag and drop your bill file or use the upload button to begin the process. After the file is processed, review the data and click the appropriate button to create the record or copy the data.
+```bash
+git clone https://github.com/your-username/NZC-LLM-Bill-Ingestor.git
+cd NZC-LLM-Bill-Ingestor
+```
 
-🛠️ Installation
-To install this metadata in your Salesforce org, follow these steps:
+#### 2️⃣ Authorize Your Org
 
-Clone this repository to your local machine.
+```bash
+# For sandbox/production orgs
+sfdx auth:web:login --setalias MyOrg --instanceurl https://test.salesforce.com
 
-Use Salesforce DX to deploy the metadata to your desired org.
+# For developer orgs
+sfdx auth:web:login --setalias MyOrg
+```
 
-Bash
+#### 3️⃣ Deploy the Metadata
 
-sfdx force:source:deploy -p force-app -u YourOrgAlias
-Add the LWC component to the desired Lightning Page for the Stationary Asset object.
+```bash
+# Deploy all components
+sfdx force:source:deploy -p force-app -u MyOrg
 
-🤝 Contributing
-Contributions are welcome! Please feel free to submit a pull request.
+# Or use CumulusCI (if configured)
+cci flow run dev_org --org dev
+```
 
-📄 License
-This project is licensed under the MIT License.
+#### 4️⃣ Configure Einstein AI
+
+Ensure your org has:
+- Einstein AI Platform enabled
+- Prompt Template Builder access
+- Required Einstein credits available
+
+---
+
+## 🎯 Usage
+
+### 📱 **Adding Components to Lightning Pages**
+
+1. **Navigate** to your target Lightning Page (Home, Account, etc.)
+2. **Edit** the page using the Lightning App Builder
+3. **Find** the `Image Analyzer` component in the Custom Components section
+4. **Drag** the component to your desired location
+5. **Configure** component properties as needed
+6. **Save** and **Activate** the page
+
+### 🔄 **Processing Bills**
+
+1. **Upload** a bill file using the Image Analyzer component
+2. **Click** "Analyze with AI" to process the document
+3. **Review** the extracted data in the results panel
+4. **Click** "Create Energy Records" to automatically create `StnryAssetEnrgyUse` records
+5. **Monitor** the progress and view created record links
+
+### 📊 **Viewing Results**
+
+- **Energy records** are automatically linked to your parent record
+- **View created records** by clicking the provided links
+- **Track consumption** patterns in Net Zero Cloud dashboards
+
+---
+
+## 🏗️ Architecture
+
+```mermaid
+graph TB
+    A[Lightning Web Component] --> B[AIFileAnalysisController]
+    B --> C[Einstein AI Prompt Templates]
+    B --> D[MultipleJSONParser]
+    B --> E[StnryAssetEnrgyUse Records]
+    C --> F[AI Analysis Results]
+    F --> G[JSON Parser]
+    G --> E
+    E --> H[Net Zero Cloud]
+```
+
+### 🧩 **Key Components**
+
+| Component | Description |
+|-----------|-------------|
+| `imageAnalyzer` | Lightning Web Component for file upload and AI analysis |
+| `AIFileAnalysisController` | Apex controller handling AI processing and record creation |
+| `MultipleJSONParser` | Utility class for parsing complex JSON structures |
+| `Process_AI_Analysis_Result` | Flow for additional processing workflows |
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions to improve the NZC LLM Bill Ingestor! Please follow these steps:
+
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
+3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
+4. **Push** to the branch (`git push origin feature/amazing-feature`)
+5. **Open** a Pull Request
+
+### 📝 **Development Guidelines**
+
+- Follow [Salesforce coding standards](https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_classes_best_practices.htm)
+- Include comprehensive test coverage (>75%)
+- Update documentation for new features
+- Test thoroughly in multiple org types
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License** - see the [LICENSE.md](LICENSE.md) file for details.
+
+---
+
+## 🆘 Support
+
+- 📚 **Documentation**: Check our [Wiki](../../wiki) for detailed guides
+- 🐛 **Issues**: Report bugs via [GitHub Issues](../../issues)
+- 💬 **Discussions**: Join the conversation in [GitHub Discussions](../../discussions)
+- 📧 **Contact**: Reach out to the maintainers for enterprise support
+
+---
+
+<div align="center">
+
+**Made with ❤️ for the Salesforce Community**
+
+⭐ **Star this repo** if you find it helpful!
+
+</div>

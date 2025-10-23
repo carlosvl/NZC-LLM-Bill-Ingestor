@@ -25,6 +25,8 @@ export default class AIFileAnalysisController extends NavigationMixin(LightningE
     @track fileOptions = [];
     @track orgBaseUrl;
     @track createdRecordIds = [];
+    @track selectedRowData = null;
+    @track showDetailView = false;
 
     _wiredFilesResult;
 
@@ -81,19 +83,26 @@ export default class AIFileAnalysisController extends NavigationMixin(LightningE
                     };
                 });
 
-                // Generate columns dynamically based on the first object
+                // Generate essential columns only - Account Number, Due Date, Kilowatts Consumed
                 let columns = [
-                    { label: '#', fieldName: 'rowIndex', type: 'number', fixedWidth: 50 }
+                    { label: '#', fieldName: 'rowIndex', type: 'number', fixedWidth: 60 }
+                ];
+
+                // Define essential fields we want to display
+                const essentialFields = [
+                    { key: 'account_number', label: 'Account Number' },
+                    { key: 'due_date', label: 'Due Date' },
+                    { key: 'kilowatts_consumed', label: 'kWh Consumed' }
                 ];
 
                 if (tableData.length > 0) {
                     const firstItem = tableData[0];
-                    Object.keys(firstItem).forEach(key => {
-                        if (key !== 'Id' && key !== 'rowIndex') {
-                            const label = key.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
+                    // Only add columns for essential fields that exist in the data
+                    essentialFields.forEach(field => {
+                        if (firstItem.hasOwnProperty(field.key)) {
                             columns.push({
-                                label: label,
-                                fieldName: key,
+                                label: field.label,
+                                fieldName: field.key,
                                 type: 'text',
                                 wrapText: true
                             });
@@ -154,6 +163,27 @@ export default class AIFileAnalysisController extends NavigationMixin(LightningE
         return this.isArrayResult && this.resultData ? this.resultData.length : 0;
     }
 
+    /**
+     * Helper getter to prepare detail fields for display
+     */
+    get detailFields() {
+        if (!this.selectedRowData) return [];
+        
+        const fields = [];
+        Object.keys(this.selectedRowData).forEach(key => {
+            if (key !== 'Id' && key !== 'rowIndex') {
+                const label = key.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
+                fields.push({
+                    key: key,
+                    label: label,
+                    value: this.selectedRowData[key] || 'N/A'
+                });
+            }
+        });
+        
+        return fields;
+    }
+
     @wire(getOrgBaseUrl)
     wiredOrgUrl({ error, data }) {
         if (data) {
@@ -196,6 +226,8 @@ export default class AIFileAnalysisController extends NavigationMixin(LightningE
         this.disableAnalyzeButton = true;
         this.disableCreateRecordsButton = true;
         this.createdRecordIds = [];
+        this.selectedRowData = null;
+        this.showDetailView = false;
     }
 
     fileUploadHandler(event) {
@@ -298,6 +330,36 @@ export default class AIFileAnalysisController extends NavigationMixin(LightningE
         const encodedResult = encodeURIComponent(this.aiResult);
         let flowUrl = `/flow/${this.flowApiName}?input_AIAnalysisResult=${encodedResult}&recordId=${this.recordId}`;
         window.open(flowUrl, '_blank');
+    }
+
+    handleRowAction(event) {
+        const actionName = event.detail.action.name;
+        const row = event.detail.row;
+        
+        if (actionName === 'show_details') {
+            this.handleShowDetails(row);
+        }
+    }
+
+    handleRowSelection(event) {
+        const selectedRows = event.detail.selectedRows;
+        if (selectedRows.length > 0) {
+            this.handleShowDetails(selectedRows[0]);
+        } else {
+            this.showDetailView = false;
+            this.selectedRowData = null;
+        }
+    }
+
+    handleShowDetails(row) {
+        console.log('🔍 DEBUG: Showing details for row:', row);
+        this.selectedRowData = row;
+        this.showDetailView = true;
+    }
+
+    handleCloseDetails() {
+        this.showDetailView = false;
+        this.selectedRowData = null;
     }
 
     showSimpleActionToast(msg) {

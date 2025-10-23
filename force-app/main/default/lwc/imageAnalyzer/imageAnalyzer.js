@@ -219,6 +219,7 @@ export default class AIFileAnalysisController extends NavigationMixin(LightningE
     }
 
     async handleAnalyzeFiles() {
+        console.log('🚀 DEBUG: handleAnalyzeFiles method called!');
         if (!this.uploadedFileId) {
             this.errorMessage = 'Please select a file to analyze first.';
             return;
@@ -226,9 +227,15 @@ export default class AIFileAnalysisController extends NavigationMixin(LightningE
         this.isLoading = true;
         this.errorMessage = '';
         this.aiResult = '';
+        console.log('🚀 DEBUG: About to call analyzeFiles Apex method');
         try {
             const result = await analyzeFiles({ fileId: this.uploadedFileId });
+            console.log('🚀 DEBUG: Received result from Apex:', result);
             this.aiResult = result;
+            console.log('🚀 DEBUG: Set this.aiResult to:', this.aiResult);
+            console.log('🚀 DEBUG: Calling formattedResult getter...');
+            const formatted = this.formattedResult;
+            console.log('🚀 DEBUG: formattedResult returned:', formatted);
             this.disableCreateRecordsButton = false; // Enable create records button once analysis is complete
             this.showToastMessage('AI Analysis Complete', 'The AI-powered analysis is now ready!', 'success');
         } catch (err) {

@@ -37,7 +37,12 @@ export default class AIFileAnalysisController extends NavigationMixin(LightningE
         try {
             // Clean the string: The AI might wrap the JSON in ```json ... ```
             const cleanedString = this.aiResult.replace(/```json\n?|\n?```/g, '').trim();
+            console.log('🔍 Debug - Original aiResult:', this.aiResult);
+            console.log('🔍 Debug - Cleaned string:', cleanedString);
+            
             const parsed = JSON.parse(cleanedString);
+            console.log('🔍 Debug - Parsed JSON:', parsed);
+            console.log('🔍 Debug - Is Array?', Array.isArray(parsed));
             
             // Handle single object
             if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
@@ -57,6 +62,7 @@ export default class AIFileAnalysisController extends NavigationMixin(LightningE
             
             // Handle array of objects
             if (Array.isArray(parsed) && parsed.length > 0) {
+                console.log('🎯 Debug - Processing array with', parsed.length, 'items');
                 // Prepare data for lightning-datatable
                 const tableData = parsed.map((item, index) => {
                     if (typeof item === 'object' && item !== null) {
@@ -95,16 +101,20 @@ export default class AIFileAnalysisController extends NavigationMixin(LightningE
                     });
                 }
 
-                return {
+                const result = {
                     type: 'array',
                     data: tableData,
                     columns: columns
                 };
+                console.log('✅ Debug - Returning array result:', result);
+                return result;
             }
             
             return null; // It's valid JSON, but not a format we can display
         } catch (e) {
             // If parsing fails, it's not JSON. Return null.
+            console.error('❌ Debug - JSON parsing failed:', e.message);
+            console.error('❌ Debug - Original string:', this.aiResult);
             return null;
         }
     }

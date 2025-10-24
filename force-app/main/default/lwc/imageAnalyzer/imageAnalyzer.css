@@ -303,6 +303,47 @@
 }
 
 
+/* Enhanced Action Column Styling */
+.ai-datatable [data-label="Actions"] {
+    text-align: center !important;
+}
+
+/* Make action buttons more prominent and button-like */
+.ai-datatable .slds-dropdown-trigger .slds-button_icon-border-filled,
+.ai-datatable .slds-dropdown-trigger .slds-button {
+    background-color: #0176d3 !important;
+    border-color: #0176d3 !important;
+    color: white !important;
+    border-radius: 0.25rem !important;
+    min-width: 70px !important;
+    font-weight: 500 !important;
+    padding: 0.375rem 0.75rem !important;
+}
+
+.ai-datatable .slds-dropdown-trigger .slds-button:hover,
+.ai-datatable .slds-dropdown-trigger .slds-button:focus {
+    background-color: #014486 !important;
+    border-color: #014486 !important;
+}
+
+/* Style the dropdown icon to be more visible */
+.ai-datatable .slds-dropdown-trigger .slds-button .slds-button__icon {
+    fill: white !important;
+}
+
+/* Style the action menu items */
+.ai-datatable .slds-dropdown__item a {
+    padding: 0.5rem 1rem !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    font-weight: 500 !important;
+}
+
+.ai-datatable .slds-dropdown__item a:hover {
+    background-color: #f3f2f2 !important;
+}
+
 /* Responsive behavior for small screens */
 @media (max-width: 768px) {
     .ai-result-datatable {

@@ -120,7 +120,7 @@
                             Analysis Results ({arrayItemCount} items found)
                         </h3>
                         <div class="ai-result-datatable">
-                            <p class="ai-table-hint">💡 Click "View Details" action button to see full record details</p>
+                            <p class="ai-table-hint">💡 Click the "View" button to see full record details</p>
                             <lightning-datatable
                                 data={resultData}
                                 columns={tableColumns}
@@ -131,7 +131,7 @@
                                 sorted-direction="asc"
                                 sorted-by="rowIndex"
                                 class="ai-datatable"
-                                onrowaction={handleRowAction}>
+                                oncellchange={handleCellChange}>
                             </lightning-datatable>
                         </div>
 

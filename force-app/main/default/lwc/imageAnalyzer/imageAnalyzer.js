@@ -126,18 +126,21 @@ export default class AIFileAnalysisController extends NavigationMixin(LightningE
                         }
                     });
                     
-                    // Add row action for viewing details
+                    // Add custom button column for viewing details
                     columns.push({
-                        type: 'action',
+                        label: 'Details',
+                        type: 'button',
                         typeAttributes: {
-                            rowActions: [
-                                {
-                                    label: 'View Details',
-                                    name: 'view_details'
-                                }
-                            ]
+                            label: 'View',
+                            name: 'view_details',
+                            title: 'Click to view full details',
+                            disabled: false,
+                            value: 'view',
+                            iconName: 'utility:preview',
+                            iconPosition: 'left',
+                            variant: 'brand'
                         },
-                        fixedWidth: 60
+                        fixedWidth: 90
                     });
                 }
 
@@ -350,16 +353,22 @@ export default class AIFileAnalysisController extends NavigationMixin(LightningE
         window.open(flowUrl, '_blank');
     }
 
-    handleRowAction(event) {
-        console.log('🔥 Row action event fired!', event.detail);
-        const actionName = event.detail.action.name;
-        const row = event.detail.row;
+    handleCellChange(event) {
+        console.log('🔥 Cell change event fired!', event.detail);
+        const changedData = event.detail.draftValues;
         
-        console.log('🔥 Action name:', actionName);
-        console.log('🔥 Row data:', row);
-        
-        if (actionName === 'view_details') {
-            this.handleShowDetails(row);
+        if (changedData && changedData.length > 0) {
+            const changedRow = changedData[0];
+            console.log('🔥 Changed row data:', changedRow);
+            
+            // Find the full row data by ID
+            const rowId = changedRow.Id;
+            const fullRowData = this.resultData.find(item => item.Id === rowId);
+            
+            if (fullRowData) {
+                console.log('🔥 Full row data found:', fullRowData);
+                this.handleShowDetails(fullRowData);
+            }
         }
     }
 

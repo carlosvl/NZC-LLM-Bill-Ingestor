@@ -139,15 +139,15 @@
     }
 }
 
-/* Special styling for key fields */
-.detail-field:has(.detail-label:contains("Account")) {
+/* Special styling for key fields - using data attributes instead */
+.detail-field[data-field-type="account"] {
     border-left-color: #28a745;
 }
 
-.detail-field:has(.detail-label:contains("Due Date")) {
+.detail-field[data-field-type="date"] {
     border-left-color: #ffc107;
 }
 
-.detail-field:has(.detail-label:contains("Amount")) {
+.detail-field[data-field-type="amount"] {
     border-left-color: #dc3545;
 }

@@ -20,14 +20,14 @@
             <!-- Content area -->
             <div class="detail-content">
                 <template if:true={recordData}>
-                    <div class="detail-grid">
-                        <template for:each={detailFields} for:item="field">
-                            <div key={field.key} class="detail-field">
-                                <div class="detail-label">{field.label}</div>
-                                <div class="detail-value">{field.value}</div>
-                            </div>
-                        </template>
-                    </div>
+                        <div class="detail-grid">
+                            <template for:each={detailFields} for:item="field">
+                                <div key={field.key} class="detail-field" data-field-type={field.type}>
+                                    <div class="detail-label">{field.label}</div>
+                                    <div class="detail-value">{field.value}</div>
+                                </div>
+                            </template>
+                        </div>
                 </template>
                 
                 <!-- Empty state -->

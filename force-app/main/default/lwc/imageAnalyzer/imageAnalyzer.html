@@ -120,20 +120,18 @@
                             Analysis Results ({arrayItemCount} items found)
                         </h3>
                         <div class="ai-result-datatable">
-                            <p class="ai-table-hint">💡 Click any row to view full details</p>
+                            <p class="ai-table-hint">💡 Click "View Details" action button to see full record details</p>
                             <lightning-datatable
                                 data={resultData}
                                 columns={tableColumns}
                                 key-field="Id"
-                                hide-checkbox-column="false"
+                                hide-checkbox-column="true"
                                 show-row-number-column="false"
                                 resize-column-disabled="false"
                                 sorted-direction="asc"
                                 sorted-by="rowIndex"
                                 class="ai-datatable"
-                                max-row-selection="1"
-                                onrowselection={handleRowSelection}
-                                onclick={handleTableClick}>
+                                onrowaction={handleRowAction}>
                             </lightning-datatable>
                         </div>
 

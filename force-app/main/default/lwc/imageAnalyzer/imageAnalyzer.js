@@ -125,6 +125,20 @@ export default class AIFileAnalysisController extends NavigationMixin(LightningE
                             });
                         }
                     });
+                    
+                    // Add row action for viewing details
+                    columns.push({
+                        type: 'action',
+                        typeAttributes: {
+                            rowActions: [
+                                {
+                                    label: 'View Details',
+                                    name: 'view_details'
+                                }
+                            ]
+                        },
+                        fixedWidth: 60
+                    });
                 }
 
                 this._formattedResult = {
@@ -337,97 +351,45 @@ export default class AIFileAnalysisController extends NavigationMixin(LightningE
     }
 
     handleRowAction(event) {
+        console.log('🔥 Row action event fired!', event.detail);
         const actionName = event.detail.action.name;
         const row = event.detail.row;
         
-        if (actionName === 'show_details') {
+        console.log('🔥 Action name:', actionName);
+        console.log('🔥 Row data:', row);
+        
+        if (actionName === 'view_details') {
             this.handleShowDetails(row);
         }
     }
 
-    handleRowSelection(event) {
-        console.log('🔥 Row selection event fired!', event.detail);
-        const selectedRows = event.detail.selectedRows;
-        console.log('🔥 Selected rows:', selectedRows);
-        
-        if (selectedRows && selectedRows.length > 0) {
-            console.log('🔥 First selected row:', selectedRows[0]);
-            this.handleShowDetails(selectedRows[0]);
-        } else {
-            console.log('🔥 No rows selected, hiding detail view');
-            this.showDetailView = false;
-            this.selectedRowData = null;
-        }
-    }
-
-    handleTableClick(event) {
-        console.log('🔥 Table click event fired!', event.detail);
-        // Alternative approach: detect clicks on table rows
-        const target = event.target;
-        console.log('🔥 Click target:', target);
-        console.log('🔥 Click target tagName:', target?.tagName);
-        console.log('🔥 Click target classList:', target?.classList);
-        
-        // Try different approaches to find row data
-        if (target && target.closest) {
-            // Try multiple selectors for lightning-datatable rows
-            let row = target.closest('tr[data-row-key-value]') || 
-                     target.closest('tr.slds-hint-parent') ||
-                     target.closest('[role="row"]');
-                     
-            console.log('🔥 Found row element:', row);
-            
-            if (row) {
-                let rowId = row.getAttribute('data-row-key-value') || 
-                           row.getAttribute('data-row-id') ||
-                           row.getAttribute('aria-rowindex');
-                console.log('🔥 Clicked row ID:', rowId);
-                
-                // If we have resultData, try to find by index if no proper ID
-                if (!rowId && this.resultData) {
-                    const rowIndex = Array.from(row.parentNode.children).indexOf(row);
-                    console.log('🔥 Row index:', rowIndex);
-                    if (rowIndex > 0 && this.resultData[rowIndex - 1]) { // -1 because header is row 0
-                        console.log('🔥 Using row by index:', this.resultData[rowIndex - 1]);
-                        this.handleShowDetails(this.resultData[rowIndex - 1]);
-                        return;
-                    }
-                }
-                
-                // Find the row data from our resultData
-                if (rowId && this.resultData) {
-                    const rowData = this.resultData.find(item => item.Id === rowId);
-                    if (rowData) {
-                        console.log('🔥 Found row data by ID:', rowData);
-                        this.handleShowDetails(rowData);
-                    }
-                }
-            }
-        }
-        
-        // Fallback: If click doesn't find row, try first item for testing
-        if (this.resultData && this.resultData.length > 0 && !this.showDetailView) {
-            console.log('🔥 Fallback: Using first row data for testing');
-            this.handleShowDetails(this.resultData[0]);
-        }
-    }
 
     handleShowDetails(row) {
         console.log('🔍 DEBUG: Showing details for row:', row);
-        console.log('🔍 DEBUG: Before setting - selectedRowData:', this.selectedRowData);
-        console.log('🔍 DEBUG: Before setting - showDetailView:', this.showDetailView);
+        console.log('🔍 DEBUG: Current selectedRowData:', this.selectedRowData);
+        console.log('🔍 DEBUG: Current showDetailView:', this.showDetailView);
         
+        // Check if this is the same record to avoid unnecessary re-renders
+        const isSameRecord = this.selectedRowData && 
+                           this.selectedRowData.Id === row.Id;
+        
+        if (isSameRecord) {
+            console.log('🔍 DEBUG: Same record clicked, no change needed');
+            return;
+        }
+        
+        // Update to new record data (works for both new and switching records)
         this.selectedRowData = row;
         this.showDetailView = true;
         
-        console.log('🔍 DEBUG: After setting - selectedRowData:', this.selectedRowData);
-        console.log('🔍 DEBUG: After setting - showDetailView:', this.showDetailView);
+        console.log('🔍 DEBUG: Updated - selectedRowData:', this.selectedRowData);
+        console.log('🔍 DEBUG: Updated - showDetailView:', this.showDetailView);
         
-        // Force a re-render by triggering change detection
-        setTimeout(() => {
-            console.log('🔍 DEBUG: In timeout - selectedRowData:', this.selectedRowData);
-            console.log('🔍 DEBUG: In timeout - showDetailView:', this.showDetailView);
-        }, 100);
+        // Show user-friendly message
+        if (!isSameRecord && this.selectedRowData) {
+            const accountNumber = this.selectedRowData.account_number || 'Unknown';
+            console.log(`✅ Showing details for account: ${accountNumber}`);
+        }
     }
 
     handleCloseDetails(event) {

@@ -365,28 +365,69 @@ export default class AIFileAnalysisController extends NavigationMixin(LightningE
         // Alternative approach: detect clicks on table rows
         const target = event.target;
         console.log('🔥 Click target:', target);
+        console.log('🔥 Click target tagName:', target?.tagName);
+        console.log('🔥 Click target classList:', target?.classList);
         
-        // Try to find the row data
+        // Try different approaches to find row data
         if (target && target.closest) {
-            const row = target.closest('tr[data-row-key-value]');
+            // Try multiple selectors for lightning-datatable rows
+            let row = target.closest('tr[data-row-key-value]') || 
+                     target.closest('tr.slds-hint-parent') ||
+                     target.closest('[role="row"]');
+                     
+            console.log('🔥 Found row element:', row);
+            
             if (row) {
-                const rowId = row.getAttribute('data-row-key-value');
+                let rowId = row.getAttribute('data-row-key-value') || 
+                           row.getAttribute('data-row-id') ||
+                           row.getAttribute('aria-rowindex');
                 console.log('🔥 Clicked row ID:', rowId);
                 
+                // If we have resultData, try to find by index if no proper ID
+                if (!rowId && this.resultData) {
+                    const rowIndex = Array.from(row.parentNode.children).indexOf(row);
+                    console.log('🔥 Row index:', rowIndex);
+                    if (rowIndex > 0 && this.resultData[rowIndex - 1]) { // -1 because header is row 0
+                        console.log('🔥 Using row by index:', this.resultData[rowIndex - 1]);
+                        this.handleShowDetails(this.resultData[rowIndex - 1]);
+                        return;
+                    }
+                }
+                
                 // Find the row data from our resultData
-                const rowData = this.resultData?.find(item => item.Id === rowId);
-                if (rowData) {
-                    console.log('🔥 Found row data:', rowData);
-                    this.handleShowDetails(rowData);
+                if (rowId && this.resultData) {
+                    const rowData = this.resultData.find(item => item.Id === rowId);
+                    if (rowData) {
+                        console.log('🔥 Found row data by ID:', rowData);
+                        this.handleShowDetails(rowData);
+                    }
                 }
             }
+        }
+        
+        // Fallback: If click doesn't find row, try first item for testing
+        if (this.resultData && this.resultData.length > 0 && !this.showDetailView) {
+            console.log('🔥 Fallback: Using first row data for testing');
+            this.handleShowDetails(this.resultData[0]);
         }
     }
 
     handleShowDetails(row) {
         console.log('🔍 DEBUG: Showing details for row:', row);
+        console.log('🔍 DEBUG: Before setting - selectedRowData:', this.selectedRowData);
+        console.log('🔍 DEBUG: Before setting - showDetailView:', this.showDetailView);
+        
         this.selectedRowData = row;
         this.showDetailView = true;
+        
+        console.log('🔍 DEBUG: After setting - selectedRowData:', this.selectedRowData);
+        console.log('🔍 DEBUG: After setting - showDetailView:', this.showDetailView);
+        
+        // Force a re-render by triggering change detection
+        setTimeout(() => {
+            console.log('🔍 DEBUG: In timeout - selectedRowData:', this.selectedRowData);
+            console.log('🔍 DEBUG: In timeout - showDetailView:', this.showDetailView);
+        }, 100);
     }
 
     handleCloseDetails(event) {

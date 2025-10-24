@@ -4,6 +4,18 @@ export default class EnergyRecordDetail extends LightningElement {
     @api recordData;
     @api showComponent = false;
     
+    connectedCallback() {
+        console.log('🎯 EnergyRecordDetail: Component connected');
+        console.log('🎯 EnergyRecordDetail: recordData =', this.recordData);
+        console.log('🎯 EnergyRecordDetail: showComponent =', this.showComponent);
+    }
+    
+    renderedCallback() {
+        console.log('🎯 EnergyRecordDetail: Component rendered');
+        console.log('🎯 EnergyRecordDetail: recordData =', this.recordData);
+        console.log('🎯 EnergyRecordDetail: showComponent =', this.showComponent);
+    }
+    
     /**
      * Helper getter to prepare detail fields for display
      */

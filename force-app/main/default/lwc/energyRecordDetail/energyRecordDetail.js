@@ -27,17 +27,80 @@ export default class EnergyRecordDetail extends LightningElement {
             if (key !== 'Id' && key !== 'rowIndex') {
                 const label = key.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
                 const fieldType = this.getFieldType(key, label);
+                const rawValue = this.recordData[key] || 'N/A';
+                
+                // Format the value based on field type
+                let displayValue = rawValue;
+                if (fieldType === 'amount') {
+                    // Check if it's currency field (amount due)
+                    if (key.toLowerCase().includes('amount') && key.toLowerCase().includes('due')) {
+                        displayValue = this.formatCurrency(rawValue);
+                    } else {
+                        displayValue = this.formatNumber(rawValue);
+                    }
+                } else if (fieldType === 'date') {
+                    displayValue = this.formatDate(rawValue);
+                }
                 
                 fields.push({
                     key: key,
                     label: label,
-                    value: this.recordData[key] || 'N/A',
+                    value: displayValue,
                     type: fieldType
                 });
             }
         });
         
         return fields;
+    }
+    
+    /**
+     * Format number with thousands separators
+     */
+    formatNumber(value) {
+        if (value === 'N/A' || value === null || value === undefined) return 'N/A';
+        
+        const numValue = parseFloat(value);
+        if (isNaN(numValue)) return value;
+        
+        return numValue.toLocaleString('en-US');
+    }
+    
+    /**
+     * Format currency value
+     */
+    formatCurrency(value) {
+        if (value === 'N/A' || value === null || value === undefined) return 'N/A';
+        
+        const numValue = parseFloat(value);
+        if (isNaN(numValue)) return value;
+        
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(numValue);
+    }
+    
+    /**
+     * Format date value
+     */
+    formatDate(value) {
+        if (value === 'N/A' || value === null || value === undefined) return 'N/A';
+        
+        try {
+            const date = new Date(value);
+            if (isNaN(date.getTime())) return value;
+            
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: '2-digit'
+            });
+        } catch (e) {
+            return value;
+        }
     }
     
     /**

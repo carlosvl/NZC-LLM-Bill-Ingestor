@@ -107,9 +107,31 @@ export default class AIFileAnalysisController extends NavigationMixin(LightningE
 
                 // Define essential fields we want to display
                 const essentialFields = [
-                    { key: 'account_number', label: 'Account Number' },
-                    { key: 'due_date', label: 'Due Date' },
-                    { key: 'kilowatts_consumed', label: 'kWh Consumed' }
+                    { 
+                        key: 'account_number', 
+                        label: 'Account Number',
+                        type: 'text',
+                        wrapText: true
+                    },
+                    { 
+                        key: 'due_date', 
+                        label: 'Due Date',
+                        type: 'date',
+                        typeAttributes: { 
+                            year: 'numeric', 
+                            month: 'short', 
+                            day: '2-digit'
+                        }
+                    },
+                    { 
+                        key: 'kilowatts_consumed', 
+                        label: 'kWh Consumed',
+                        type: 'number',
+                        typeAttributes: {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        }
+                    }
                 ];
 
                 if (tableData.length > 0) {
@@ -117,12 +139,23 @@ export default class AIFileAnalysisController extends NavigationMixin(LightningE
                     // Only add columns for essential fields that exist in the data
                     essentialFields.forEach(field => {
                         if (firstItem.hasOwnProperty(field.key)) {
-                            columns.push({
+                            const column = {
                                 label: field.label,
                                 fieldName: field.key,
-                                type: 'text',
-                                wrapText: true
-                            });
+                                type: field.type
+                            };
+                            
+                            // Add wrapText if specified
+                            if (field.wrapText) {
+                                column.wrapText = true;
+                            }
+                            
+                            // Add typeAttributes if specified
+                            if (field.typeAttributes) {
+                                column.typeAttributes = field.typeAttributes;
+                            }
+                            
+                            columns.push(column);
                         }
                     });
                     

@@ -1,4 +1,4 @@
-public without sharing class AIFileAnalysisController {
+public with sharing class AIFileAnalysisController {
     
     /**
      * Wrapper class to format file data for the LWC's combobox component.
@@ -169,6 +169,15 @@ public without sharing class AIFileAnalysisController {
         List<String> createdRecordIds = new List<String>();
         
         if (!recordsToInsert.isEmpty()) {
+            // Check FLS permissions for INSERT operation on all fields being set
+            if (!Schema.sObjectType.StnryAssetEnrgyUse.fields.FuelConsumption.isCreateable() ||
+                !Schema.sObjectType.StnryAssetEnrgyUse.fields.FuelType.isCreateable() ||
+                !Schema.sObjectType.StnryAssetEnrgyUse.fields.Name.isCreateable() ||
+                !Schema.sObjectType.StnryAssetEnrgyUse.fields.StartDate.isCreateable() ||
+                !Schema.sObjectType.StnryAssetEnrgyUse.fields.StnryAssetEnvrSrcId.isCreateable()) {
+                throw new AuraHandledException('Insufficient permissions to create StnryAssetEnrgyUse records with required fields');
+            }
+            
             insert recordsToInsert;
             for (StnryAssetEnrgyUse record : recordsToInsert) {
                 createdRecordIds.add(record.Id);

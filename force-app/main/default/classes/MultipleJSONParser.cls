@@ -30,7 +30,7 @@
 */
 public class MultipleJSONParser {
     
-    @InvocableMethod(label='Multiple JSON Parser' description='Multiple JSON Parser')
+    @InvocableMethod(label='MultipleJSONParser' description='MultipleJSONParser')
     public static List<ResultValue> parseMultipleJson(List<Request> jsonObjects) {
         List<ResultValue> results = new List<ResultValue>();
         

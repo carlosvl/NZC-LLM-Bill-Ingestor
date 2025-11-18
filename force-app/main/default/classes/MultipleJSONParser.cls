@@ -30,7 +30,7 @@
 */
 public class MultipleJSONParser {
     
-    @InvocableMethod(label='Multiple JSON Parser' description='Multiple JSON Parser')
+    @InvocableMethod(label='MultipleJSONParser' description='MultipleJSONParser')
     public static List<ResultValue> MultipleJSONParser(List<Request> jsonObjects) {
         List<ResultValue> results = new List<ResultValue>();
         
@@ -84,46 +84,58 @@ public class MultipleJSONParser {
     }
     
     private static String mapParser(String fieldName, Object jsonObject) {
-        Object paramObject = null;
-        Object JSONString = JSON.serialize(jsonObject);
-        System.debug('Parsing: ' + JSONString);
-        
-        if (jsonObject instanceof List<Object> && fieldName != '') {
-            System.debug('Detected as List');
-            List<Object> theList = (List<Object>)jsonObject;
-            Integer enclosureIndex = fieldName.indexOf(']');
-            Integer listIndex = Integer.valueOf(fieldName.substring(1, enclosureIndex));
-            if (listIndex >= theList.size()) {
-                throw new ListException('List index out of bounds: ' + listIndex);
-            }
-            paramObject = theList.get(listIndex);
-            fieldName = fieldName.substring(enclosureIndex + 1);
-            return mapParser(fieldName, paramObject);           
+        if (String.isBlank(fieldName)) {
+            return getStringValue(jsonObject);
         }
         
-        if (jsonObject instanceof Map<String, Object> && fieldName != '') {
-            System.debug('Detected as Map');
-            Map<String, Object> theMap = (Map<String, Object>)jsonObject;
-            Integer dotIndex = fieldName.indexOf('.');
-            if (dotIndex < 0) { dotIndex = fieldName.length(); }
-            Integer listIndex = fieldName.indexOf('[');
-            if (listIndex < 0) { listIndex = fieldName.length(); }
-            Integer earliestIndex = Math.min(dotIndex, listIndex);
-            String traversedFieldName = fieldName.substring(0, earliestIndex);    
-            paramObject = theMap.get(traversedFieldName);
-            if (earliestIndex + 1 > fieldName.length()) {
-                fieldName = '';
-            } else {
-                fieldName = fieldName.substring(earliestIndex + 1);
-            }
-            return mapParser(fieldName, paramObject);
-        } else {
-            if (jsonObject instanceof Map<String, Object> || jsonObject instanceof List<Object>) {
-                return getStringValue(JSONString);
-            } else {
-                return getStringValue(jsonObject);
-            }
-        } 
+        if (jsonObject instanceof List<Object>) {
+            return parseListObject(fieldName, (List<Object>)jsonObject);
+        }
+        
+        if (jsonObject instanceof Map<String, Object>) {
+            return parseMapObject(fieldName, (Map<String, Object>)jsonObject);
+        }
+        
+        return getStringValue(jsonObject);
+    }
+    
+    /**
+     * Handles parsing of List objects
+     */
+    private static String parseListObject(String fieldName, List<Object> theList) {
+        Integer enclosureIndex = fieldName.indexOf(']');
+        Integer listIndex = Integer.valueOf(fieldName.substring(1, enclosureIndex));
+        
+        if (listIndex >= theList.size()) {
+            throw new ListException('List index out of bounds: ' + listIndex);
+        }
+        
+        Object paramObject = theList.get(listIndex);
+        String remainingFieldName = fieldName.substring(enclosureIndex + 1);
+        
+        return mapParser(remainingFieldName, paramObject);
+    }
+    
+    /**
+     * Handles parsing of Map objects  
+     */
+    private static String parseMapObject(String fieldName, Map<String, Object> theMap) {
+        Integer dotIndex = fieldName.indexOf('.');
+        Integer listIndex = fieldName.indexOf('[');
+        
+        // Find the earliest delimiter
+        Integer earliestIndex = Math.min(
+            dotIndex < 0 ? fieldName.length() : dotIndex,
+            listIndex < 0 ? fieldName.length() : listIndex
+        );
+        
+        String traversedFieldName = fieldName.substring(0, earliestIndex);
+        Object paramObject = theMap.get(traversedFieldName);
+        
+        String remainingFieldName = (earliestIndex + 1 > fieldName.length()) ? 
+            '' : fieldName.substring(earliestIndex + 1);
+            
+        return mapParser(remainingFieldName, paramObject);
     }
     
     private static String getStringValue(Object paramObject) {
@@ -134,10 +146,9 @@ public class MultipleJSONParser {
         else if (paramObject instanceof Decimal) { result = String.valueOf((Decimal)paramObject); }
         else if (paramObject instanceof Double) { result = String.valueOf((Double)paramObject); }
         else {
-            System.debug('Unrecognized JSON object? Not string nor integer nor boolean?');
+            // Unrecognized JSON object type
             return result;
         }
-        System.debug('Base token: ' + result);
         return result;
     }
     
